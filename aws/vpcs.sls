@@ -1,6 +1,5 @@
 {% if salt['pillar.get']('aws:vpcs', None) %}
 
-{% set region = salt['pillar.get']('aws:profile:region') %}
 {% set profile = salt['pillar.get']('aws:profile') %}
 
 {% for vpc_name, vpc in salt['pillar.get']('aws:vpcs', {}).items() %}
