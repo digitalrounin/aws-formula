@@ -4,8 +4,7 @@ include:
   - .vpcs
   - .secgroups
   - .ec2_key_pairs
-  # TODO - make this work
-  # - .iam_roles
+  - .iam_roles
 
 {% endif %}
 
