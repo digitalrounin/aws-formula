@@ -1,7 +1,5 @@
 {% if salt['pillar.get']('aws:vpcs', None) %}
 
-{% set profile = salt['pillar.get']('aws:profile') %}
-
 {% for vpc_name, vpc in salt['pillar.get']('aws:vpcs', {}).items() %}
 VPC {{ vpc_name }} exists:
   boto_vpc.present:
@@ -9,15 +7,13 @@ VPC {{ vpc_name }} exists:
     - cidr_block: {{ vpc.cidr_block }}
     - dns_support: True
     - dns_hostnames: True
-    - profile: {{ profile }}
+    - region: {{ vpc.region }}
 
 Internet gateway {{ vpc_name }} exists:
   boto_vpc.internet_gateway_present:
     - name: {{ vpc_name }}
     - vpc_name: {{ vpc_name }}
-    - require:
-      - boto_vpc: VPC {{ vpc_name }} exists
-    - profile: {{ profile }}
+    - region: {{ vpc.region }}
 
 DHCP options {{ vpc_name }} exists:
   boto_vpc.dhcp_options_present:
@@ -26,9 +22,7 @@ DHCP options {{ vpc_name }} exists:
     - domain_name: {{ vpc.domain_name }}
     - domain_name_servers:
       - AmazonProvidedDNS
-    - require:
-      - boto_vpc: VPC {{ vpc_name }} exists
-    - profile: {{ profile }}
+    - region: {{ vpc.region }}
 
 {% set subnets = vpc.get('subnets', {}) %}
 {% set subnet_names = subnets.keys() %}
@@ -40,9 +34,7 @@ Subnet {{ subnet_name }} exists:
     - cidr_block: {{ subnet.cidr_block }}
     - vpc_name: {{ vpc_name }}
     - availability_zone: {{ subnet.availability_zone }}
-    - require:
-      - boto_vpc: VPC {{ vpc_name }} exists
-    - profile: {{ profile }}
+    - region: {{ vpc.region }}
 {% endfor %}
 
 Routing table {{ vpc_name }} exists:
@@ -56,14 +48,8 @@ Routing table {{ vpc_name }} exists:
       {% for subnet_name in subnet_names %}
       - {{ subnet_name }}
       {% endfor %}
-    - require:
-      - boto_vpc: VPC {{ vpc_name }} exists
-      - boto_vpc: Internet gateway {{ vpc_name }} exists
-      {% for subnet_name in subnet_names %}
-      - Subnet {{ subnet_name }} exists
-      {% endfor %}
+    - region: {{ vpc.region }}
 
-    - profile: {{ profile }}
 {% endfor %}
 
 {% endif %}

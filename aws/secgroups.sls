@@ -1,7 +1,5 @@
 {% if salt['pillar.get']('aws:vpcs', None) %}
 
-{% set profile = salt['pillar.get']('aws:profile') %}
-
 include:
   - aws.vpcs
 
@@ -19,10 +17,10 @@ Security group {{ secgroup_name }} exists (pass 1):
     - name: {{ secgroup_name }}
     - description: {{ secgroup.description }}
     - vpc_name: {{ vpc_name }}
+    - region: {{ vpc.region }}
     - require:
       # Bug requires the full SLS path to work, not reletive.
       - sls: aws.vpcs
-    - profile: {{ profile }}
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -44,9 +42,9 @@ Security group {{ secgroup_name }} configure (pass 2):
     # This is done for security resonces.
     - rules: {{ secgroup.get('rules', []) }}
     - rules_egress: {{ secgroup.get('rules_egress', []) }}
+    - region: {{ vpc.region }}
     - tags:
        Name: {{ secgroup_name }}
-    - profile: {{ profile }}
 {% endfor %}
 {% endif %}
 {% endfor %}
