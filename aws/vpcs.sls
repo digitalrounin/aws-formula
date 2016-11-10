@@ -37,6 +37,7 @@ Subnet {{ subnet_name }} exists:
     - region: {{ vpc.region }}
 {% endfor %}
 
+{% if not salt['pillar.get']('aws:post_bootstrap') %}
 Routing table {{ vpc_name }} exists:
   boto_vpc.route_table_present:
     - name: {{ vpc_name }}
@@ -49,6 +50,7 @@ Routing table {{ vpc_name }} exists:
       - {{ subnet_name }}
       {% endfor %}
     - region: {{ vpc.region }}
+{% endif %}
 
 {% endfor %}
 
